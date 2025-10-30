@@ -7,6 +7,7 @@
   <style>
     body {
       background: whitesmoke;
+      overflow: hidden;
     }
     * {
       margin: 0;
@@ -36,10 +37,9 @@
     }
     .videos {
       height: 500px;
-      display: grid;
+      display: none;
       grid-template-columns: 1fr;
       grid-template-rows: auto 100px;
-      display: none;
     }
     .for-image {
       display: none;
@@ -66,9 +66,10 @@
       height: 500px;
       display: none;    
     }
-    audio#whatifAudio {
-      display: none; 
+    audio {
+      display: none; /* hide play controls */
     }
+
     @media screen and (max-width: 1024px) {
       .box {
         width: 90%;
@@ -88,21 +89,42 @@
       }
     }
 
-    /* 😢 Cry Emoji Effect */
-    .cry {
+    /* 💔 Broken Heart Animation */
+    .heart {
       position: fixed;
       font-size: 35px;
-      animation: float 4s ease-in-out infinite;
+      color: red;
+      animation: floatHeart 3s ease-in-out forwards;
       opacity: 0.9;
       z-index: 999;
       user-select: none;
       pointer-events: none;
     }
 
-    @keyframes float {
+    @keyframes floatHeart {
       0% { transform: translateY(0px) scale(1); opacity: 1; }
-      50% { transform: translateY(-10px) scale(1.1); }
-      100% { transform: translateY(0px) scale(1); opacity: 1; }
+      50% { transform: translateY(-20px) scale(1.2); }
+      100% { transform: translateY(-60px) scale(1); opacity: 0; }
+    }
+
+    /* Text “Aray mo” */
+    .araymo {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 45px;
+      font-weight: bold;
+      color: crimson;
+      opacity: 0;
+      animation: fadeText 3s ease-in-out forwards;
+      z-index: 1000;
+    }
+
+    @keyframes fadeText {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+      50% { opacity: 1; transform: translate(-50%, -60%) scale(1.1); }
+      100% { opacity: 0; transform: translate(-50%, -80%) scale(1); }
     }
   </style>
 </head>
@@ -123,7 +145,7 @@
       <div class="videos" id="videos">
         <div class="for-image" id="no"></div>
         <div class="background-music" id="music">
-          <audio id="bgMusic" controls autoplay loop>
+          <audio id="bgMusic" autoplay loop>
             <source src="kung tayo talaga.mp3" type="audio/mpeg" />
           </audio>
         </div>
@@ -142,29 +164,37 @@
       const audio = document.getElementById("bgMusic");
       const whatifAudio = document.getElementById("whatifAudio");
 
-      function showCryEmojis() {
-        const positions = [
-          { top: '10%', left: '5%' }, { top: '10%', right: '5%' },
-          { bottom: '10%', left: '5%' }, { bottom: '10%', right: '5%' },
-          { top: '50%', left: '3%' }, { top: '50%', right: '3%' },
-          { top: '5%', left: '45%' }, { bottom: '5%', left: '45%' }
-        ];
-        positions.forEach((pos) => {
-          const cry = document.createElement('div');
-          cry.className = 'cry';
-          cry.textContent = '😢';
-          Object.assign(cry.style, pos);
-          document.body.appendChild(cry);
-        });
+      function clearEffects() {
+        document.querySelectorAll('.heart').forEach(el => el.remove());
+        document.querySelectorAll('.araymo').forEach(el => el.remove());
       }
 
-      function clearEmojis() {
-        document.querySelectorAll('.cry').forEach(el => el.remove());
+      function showBrokenHearts(count = 8) {
+        for (let i = 0; i < count; i++) {
+          const heart = document.createElement('div');
+          heart.className = 'heart';
+          heart.textContent = '💔';
+          heart.style.top = Math.random() * 80 + '%';
+          heart.style.left = Math.random() * 80 + '%';
+          heart.style.fontSize = Math.random() * 25 + 25 + 'px';
+          document.body.appendChild(heart);
+          setTimeout(() => heart.remove(), 3000);
+        }
+      }
+
+      function showAraymo() {
+        const text = document.createElement('div');
+        text.className = 'araymo';
+        text.textContent = 'Aray mo';
+        document.body.appendChild(text);
+        setTimeout(() => text.remove(), 3000);
       }
 
       ooInput.addEventListener("change", function () {
         if (this.checked) {
-          clearEmojis();
+          clearEffects();
+          showBrokenHearts();
+          showAraymo();
           videosContainer.style.display = "grid";
           forImage.style.display = "block";
           music.style.display = "block";
@@ -177,8 +207,8 @@
 
       hindiInput.addEventListener("change", function () {
         if (this.checked) {
-          clearEmojis();
-          showCryEmojis();
+          this.checked = false;
+          clearEffects();
           videosContainer.style.display = "none";
           forImage.style.display = "none";
           music.style.display = "none";
@@ -187,6 +217,7 @@
           video.muted = true; 
           video.play();
           whatifAudio.play();
+          showBrokenHearts();
         }
       });
     });
